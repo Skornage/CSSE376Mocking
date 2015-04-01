@@ -2,6 +2,8 @@ using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Expedia;
 using Rhino.Mocks;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace ExpediaTest
 {
@@ -50,5 +52,72 @@ namespace ExpediaTest
 		{
 			new Car(-5);
 		}
+
+        [TestMethod()]
+        public void TestCarGetsLocationFromDatabase()
+        {
+            IDatabase mockDatabase = mocks.StrictMock<IDatabase>();
+            ArrayList location = new ArrayList();
+            for (var i = 0; i < 10; i++)
+            {
+                location.Add("location " + i);
+            }
+
+            Expect.Call(mockDatabase.getCarLocation(5)).Return("location 5");
+            Expect.Call(mockDatabase.getCarLocation(1)).Return("location 1");
+
+            mocks.ReplayAll();
+
+            var target = new Car(10);
+            target.Database = mockDatabase;
+
+            String carLocation = target.getCarLocation(5);
+            Assert.AreEqual(carLocation, location[5]);
+
+            carLocation = target.getCarLocation(1);
+            Assert.AreEqual(carLocation, location[1]);
+
+            mocks.VerifyAll();
+        }
+
+        [TestMethod()]
+        public void TestCarGetsMileageFromDatabase()
+        {
+            IDatabase mockDatabase = mocks.StrictMock<IDatabase>();
+            Int32 Miles = 50;
+
+            Expect.Call(mockDatabase.Miles).PropertyBehavior();
+
+            mocks.ReplayAll();
+
+            mockDatabase.Miles = Miles;
+            var target = new Car(10);
+            target.Database = mockDatabase;
+
+            int mileage = target.Mileage;
+            Assert.AreEqual(mileage, Miles);
+
+            mocks.VerifyAll();
+        }
+
+        [TestMethod()]
+        public void TestObjectMotherUnderstanding()
+        {
+            IDatabase mockDatabase = mocks.StrictMock<IDatabase>();
+            Int32 Miles = 70;
+
+            Expect.Call(mockDatabase.Miles).PropertyBehavior();
+
+            mocks.ReplayAll();
+
+            mockDatabase.Miles = Miles;
+            var target = ObjectMother.BMW();
+            target.Database = mockDatabase;
+
+            int mileage = target.Mileage;
+            Assert.AreEqual(mileage, Miles);
+
+            mocks.VerifyAll();
+        }
 	}
 }
